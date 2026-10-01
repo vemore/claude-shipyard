@@ -36,8 +36,9 @@ First release.
   stacked pull requests, non-squash and `--admin` merges, secrets in a commit (by path and by
   content), a commit on the default branch or on a stale branch, and red commit gates; a report
   after each edit; a check that a finished branch has a green pull request; a start-of-session
-  briefing (branch, worktrees, vendored version, code ownership). Inert in a repository without
-  `scripts/lib/tooling.conf`. See `docs/hooks.md`.
+  briefing (branch, worktrees, vendored version, code ownership). Inert and silent in a repository
+  without `scripts/lib/tooling.conf` — installed for the user, the plugin is active everywhere;
+  only an empty folder gets a one-line hint to run `/shipyard:bootstrap`. See `docs/hooks.md`.
 - **Vendored scripts** (`plugins/shipyard/templates/`), copied into each project by
   `bin/vendor.py` with their selftests and a `scripts/lib/VENDORED.json` of checksums:
   `ci_scope.py`, `cleanup_local.py`, `pr_size.py`, `wiki_lint.py`, `wip.py`, `lane_paths.py`,

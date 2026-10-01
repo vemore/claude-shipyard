@@ -294,4 +294,5 @@ go: yes
 
 `login` est propre au mode test (sans GitHub, le login de la personne qui bootstrappe).
 
-`forge: local` est propre au mode test : le remote est un dépôt nu local (SKILL.md §11).
+`forge: local` est propre au mode test : le remote est un dépôt nu local (SKILL.md §11) ; la
+licence par défaut y est « propriétaire », comme pour un dépôt privé.

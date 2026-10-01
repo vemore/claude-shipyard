@@ -38,7 +38,8 @@ worktrees ; se tromper doit coûter un run lent, jamais un merge non testé.
 
 ## Installation
 
-Dans Claude Code :
+Dans Claude Code, **pour l'utilisateur** (c'est ce qui rend `/shipyard:bootstrap` disponible dans
+un dossier vide) :
 
 ```text
 /plugin marketplace add vemore/claude-shipyard
@@ -61,9 +62,10 @@ Pour que tous les clones d'un projet l'aient, déclarer la marketplace et active
 }
 ```
 
-Claude Code propose alors l'installation à l'ouverture du dossier. Le plugin peut être activé dans
-n'importe quel dépôt : **sans `scripts/lib/tooling.conf`, ses hooks sont inertes** et seul un message
-d'une ligne s'affiche au démarrage de la session.
+Claude Code propose alors l'installation à l'ouverture du dossier. Installé pour l'utilisateur, le
+plugin est actif dans tous ses dépôts : **sans `scripts/lib/tooling.conf`, ses hooks sont inertes
+et muets** — seul un dossier vide reçoit, au démarrage, la suggestion de lancer
+`/shipyard:bootstrap`.
 
 ## Utilisation
 

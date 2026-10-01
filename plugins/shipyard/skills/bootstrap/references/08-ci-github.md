@@ -25,7 +25,7 @@ commentaire (`uses: actions/checkout@<sha40> # v4.2.2`) ; Dependabot (écosystè
 compromise ne doit pas entrer par un tag réécrit. **Chaque SHA se résout, jamais de mémoire** :
 `gh api repos/<owner>/<action>/commits/<tag> --jq .sha` (lecture seule), puis vérifier dans
 l'`action.yml` de ce SHA que les entrées utilisées (`with:`) existent — un SHA inventé fait
-échouer la CI du bootstrap sur « unable to resolve action ».
+échouer la CI du bootstrap sur « unable to resolve action ». Sans `gh` authentifié : `git ls-remote https://github.com/<owner>/<action> refs/tags/<tag>` (lecture publique ; pour un tag annoté, prendre la ligne `^{}`).
 
 ## 2. `.github/workflows/ci.yml` — gabarit
 

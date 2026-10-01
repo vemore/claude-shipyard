@@ -372,8 +372,10 @@ directory cannot hold them>.
 
 Un `CLAUDE.md` dans le dossier d'un composant (`api/CLAUDE.md`, `web/CLAUDE.md`) se charge dès
 que l'agent travaille sous ce dossier. À créer dès qu'un composant a ses propres commandes et au
-moins une règle qui ne vaut pas ailleurs ; jamais pour répéter la racine. Gabarit (WP-D, un par
-composant de `COMPONENTS` qui le justifie) :
+moins une règle qui ne vaut pas ailleurs ; jamais pour répéter la racine. **Pas dans un dossier
+qui finit dans un artefact publié** (le paquet d'une bibliothèque, `src/<pkg>/`, un dossier
+servi tel quel) : le fichier y serait distribué — utiliser alors une règle par chemins (§3).
+Gabarit (WP-D, un par composant de `COMPONENTS` qui le justifie) :
 
 ````markdown
 # <component> — <stack, version>
