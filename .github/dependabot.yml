@@ -1,0 +1,14 @@
+# Keeps the pinned GitHub Actions of .github/workflows/ current: one weekly pull request that
+# bumps every action together, so the review is a single diff.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"

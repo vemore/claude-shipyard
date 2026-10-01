@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to a pull request supersedes its running checks. Runs on main are never
+# cancelled: each push to main keeps its own result.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: tests (${{ matrix.os }}, python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Python 3.9 is the floor the plugin promises; 3.12 is the current reference.
+          - os: ubuntu-24.04
+            python: "3.9"
+          - os: ubuntu-24.04
+            python: "3.12"
+          # Portability is a promise too: macOS has no GNU timeout, date -d or jq.
+          - os: macos-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Validate the manifests
+        run: |
+          python -c "import json,re; json.load(open('.claude-plugin/marketplace.json', encoding='utf-8')); v=json.load(open('plugins/shipyard/.claude-plugin/plugin.json', encoding='utf-8'))['version']; assert re.fullmatch(r'\d+\.\d+\.\d+', v), 'version is not semver: ' + v; assert '## [' + v + ']' in open('CHANGELOG.md', encoding='utf-8').read(), 'CHANGELOG.md has no section for ' + v; assert open('CHANGELOG.md', encoding='utf-8').read() == open('plugins/shipyard/CHANGELOG.md', encoding='utf-8').read(), 'CHANGELOG.md and plugins/shipyard/CHANGELOG.md differ'; print('manifests ok, version', v)"
+
+      - name: Plugin tests (hooks, vendoring)
+        run: python -m unittest discover -s tests -v
+
+      - name: Selftests of the vendored scripts
+        run: python -m unittest discover -s plugins/shipyard/templates/scripts/selftest -v
+
+  validate:
+    name: validate (claude plugin validate)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Advisory for now. It is not yet established that the Claude Code CLI validates a plugin
+    # on a runner without authentication (it does locally with an empty HOME and no
+    # credentials). Once a run here confirms it, drop continue-on-error so the job gates.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+
+      - name: Install the Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      # Given the plugin folder, the CLI checks the manifest only; the components are validated
+      # when it is given their folders.
+      - name: Validate the plugin
+        run: claude plugin validate plugins/shipyard
+
+      - name: Validate the skills and the agents
+        run: |
+          claude plugin validate plugins/shipyard/skills
+          claude plugin validate plugins/shipyard/agents
+
+      - name: Validate the marketplace
+        run: claude plugin validate .

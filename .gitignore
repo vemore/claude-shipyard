@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments (anchored: never a bare "lib/", which would hide the
+# plugin's templates/scripts/lib/)
+/.venv/
+/venv/
+
+# Per-user Claude Code state
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
+# macOS
+.DS_Store

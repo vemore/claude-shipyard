@@ -1,0 +1,35 @@
+{
+  "description": "shipyard guards: refuse force-push, pushes to the default branch, stacked or non-squash merges and secrets, run the project's fast gates before a commit, report a quick check after an edit, require a green pull request before a turn ends, and brief each session. Inert in a repository without scripts/lib/tooling.conf.",
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command",
+          "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session_start.sh\"",
+          "timeout": 60 } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash",
+        "hooks": [ { "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard_bash.py\"",
+          "timeout": 300,
+          "statusMessage": "Checking the command, and the gates before a commit" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Edit|Write|MultiEdit",
+        "hooks": [ { "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/post_edit.py\"",
+          "timeout": 60 } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/require_pull_request.py\"",
+          "timeout": 60,
+          "statusMessage": "Checking the pull request for this branch" } ] }
+    ],
+    "SubagentStop": [
+      { "hooks": [ { "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/require_pull_request.py\"",
+          "timeout": 60,
+          "statusMessage": "Checking the pull request for this agent's branch" } ] }
+    ]
+  }
+}

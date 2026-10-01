@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Gates for commits made outside Claude Code (terminal, IDE): scripts/precommit.py checks the
+# staged secrets, then runs scripts/check.sh fast. Vendored by shipyard (bin/vendor.py);
+# activate once per clone: git config core.hooksPath .githooks
+# Bypass deliberately: git commit --no-verify.
+set -uo pipefail
+[ "${CLAUDECODE:-}" = "1" ] && exit 0   # Claude Code's PreToolUse hook already ran the gates
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+command -v python3 >/dev/null 2>&1 || { echo "pre-commit: python3 missing, gates skipped" >&2; exit 0; }
+if [ ! -f "$root/scripts/precommit.py" ]; then
+  echo "pre-commit: scripts/precommit.py missing, gates skipped (run /shipyard:sync-tooling)" >&2
+  exit 0
+fi
+exec python3 "$root/scripts/precommit.py"

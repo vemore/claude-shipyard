@@ -1,0 +1,17 @@
+{
+  "name": "claude-shipyard",
+  "owner": {
+    "name": "vemore",
+    "url": "https://github.com/vemore"
+  },
+  "metadata": {
+    "description": "Marketplace of the shipyard plugin: bootstrap a project with agent tooling and ship it in parallel."
+  },
+  "plugins": [
+    {
+      "name": "shipyard",
+      "source": "./plugins/shipyard",
+      "description": "Bootstrap a project with agent tooling (guard hooks, wiki, one-file backlog, parallel delivery, code owners for teams), then ship it as one green pull request per theme, in parallel."
+    }
+  ]
+}

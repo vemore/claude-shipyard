@@ -1,0 +1,23 @@
+{
+  "name": "shipyard",
+  "version": "0.1.0",
+  "description": "Bootstrap a project with agent tooling (guard hooks, LLM wiki, one-file-per-entry backlog, code owners for teams), then ship it in parallel: one agent and one worktree per theme, one green pull request each.",
+  "author": {
+    "name": "vemore",
+    "url": "https://github.com/vemore"
+  },
+  "homepage": "https://github.com/vemore/claude-shipyard",
+  "repository": "https://github.com/vemore/claude-shipyard",
+  "license": "MIT",
+  "keywords": [
+    "bootstrap",
+    "parallel-delivery",
+    "worktrees",
+    "hooks",
+    "wiki",
+    "backlog",
+    "code-owners",
+    "pull-requests",
+    "agents"
+  ]
+}
