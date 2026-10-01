@@ -83,13 +83,14 @@ documentation gagne et le test fige ce qui a été retenu.
 
 ### 1.4 Projet non bootstrappé : les hooks sont inertes
 
-Le plugin peut être activé dans n'importe quel dépôt. **Sans `scripts/lib/tooling.conf` dans le
-dépôt jugé, tous les hooks sortent 0 sans rien imprimer**, sauf `SessionStart`, qui imprime une
-seule ligne :
+Le plugin peut être activé dans n'importe quel dépôt — et il l'est dans tous, dès qu'il est
+installé pour l'utilisateur, ce qu'il faut pour lancer `/shipyard:bootstrap` dans un dossier
+vide. **Sans `scripts/lib/tooling.conf` dans le dépôt jugé, tous les hooks sortent 0 sans rien
+imprimer.** Seule exception : `SessionStart` dans un dossier **vide** imprime une suggestion :
 
 ```
-shipyard is enabled here, but this repository has no scripts/lib/tooling.conf — run
-/shipyard:bootstrap in an empty folder, or ignore this message.
+This folder is empty and shipyard is enabled: run /shipyard:bootstrap <what you want to build>
+to start a project with its tooling.
 ```
 
 Pourquoi : un plugin installé pour un usage ne doit pas refuser des `git push` dans des dépôts
@@ -461,7 +462,7 @@ manque, donc il n'utilise que des commandes internes du shell :
 - `python3` absent, et un `scripts/lib/tooling.conf` trouvé en remontant depuis le dossier courant :
   « WARNING: python3 is not installed: every shipyard hook (commit gates, push and merge guards,
   pull-request check) is OFF in this session. Install Python 3.9+ and restart. »
-- `python3` absent, sans `tooling.conf` : la ligne unique du §1.4 (le plugin n'a pas à alarmer un
+- `python3` absent, sans `tooling.conf` : rien, ou la suggestion du §1.4 dans un dossier vide (le plugin n'a pas à alarmer un
   dépôt qui ne l'utilise pas).
 
 Dans tous les cas, exit 0.
@@ -469,8 +470,8 @@ Dans tous les cas, exit 0.
 `session_start.py` imprime, **seulement quand c'est pertinent**, en moins de 15 lignes au total (ce
 texte entre dans le contexte de chaque session) :
 
-1. **Dépendances** : Python < 3.9, `git` absent, `scripts/lib/tooling.conf` absent (c'est alors la
-   ligne unique de §1.4), `gh` absent ou non authentifié (« pull-request checks and the merge loop
+1. **Dépendances** : Python < 3.9, `git` absent, `scripts/lib/tooling.conf` absent (silence, ou la
+   suggestion du §1.4 dans un dossier vide), `gh` absent ou non authentifié (« pull-request checks and the merge loop
    are degraded »).
 2. **Branche** (toujours) : `Branch: <b> (N ahead, M behind origin/<D>)`, ou `detached`. Sur `<D>` :
    « The main checkout stays on <D>; start work in its own worktree: » + la recette
@@ -628,7 +629,7 @@ python -m unittest discover -s tests -v
   et `reason`.
 - **SessionStart** : sur main → ligne `Branch:` + recette · autre worktree → listé + pointeur
   `cleanup_local.py` · branche `[gone]` → comptée · branche courante périmée → « not safe to commit
-  on » · `tooling.conf` absent → la ligne unique du §1.4 · `gh` absent → mention dégradée, exit 0 ·
+  on » · `tooling.conf` absent → silence, ou la suggestion du §1.4 dans un dossier vide · `gh` absent → mention dégradée, exit 0 ·
   PR mergée dans `feat/y` avec compare `ahead` → signalée ; acquittée → plus signalée · (Complet)
   tampon : un seul passage par jour ; code 3 → pas de tampon · `session_start.sh` avec un `PATH`
   sans `python3` → `WARNING`, exit 0 · version vendorisée en retard ou fichier modifié → ligne
@@ -637,8 +638,8 @@ python -m unittest discover -s tests -v
 - **post_edit** : édition dans `wt/` → le `check.sh` de `wt/` est appelé (pas celui de `main/`) et
   `additionalContext` est un JSON valide quand il sort 1 · sortie 0 → rien · fichier hors dépôt →
   rien · `check.sh` absent → rien · `check.sh` qui plante → exit 0.
-- **Inertie** : sans `tooling.conf`, chaque hook sort 0 sans rien imprimer (sauf `SessionStart` et
-  sa ligne unique).
+- **Inertie** : sans `tooling.conf`, chaque hook sort 0 sans rien imprimer (sauf `SessionStart`, qui
+  suggère `/shipyard:bootstrap` dans un dossier vide).
 - **pre-commit** : `CLAUDECODE=1` → 0 immédiat · sans → secrets contrôlés et gates factices
   appelés, refus → 1.
 - **Câblage** : `hooks.json` est un JSON valide ; chaque commande référencée (après substitution de

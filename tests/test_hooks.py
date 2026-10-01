@@ -41,7 +41,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from _hooks_support import (API_KEY, CLOUD_KEY, HOOKS, HOOKS_JSON, KEBAB_LOOK_ALIKES,  # noqa: E402
-                            NOT_BOOTSTRAPPED, NS, PLUGIN, PRE_COMMIT, PRECOMMIT_PY, PRIVATE_KEY,
+                            EMPTY_FOLDER_HINT, NS, PLUGIN, PRE_COMMIT, PRECOMMIT_PY, PRIVATE_KEY,
                             SERVICE_ACCOUNT, Sandbox, SandboxCase, run_hook)
 
 sys.path.insert(0, str(HOOKS))
@@ -719,11 +719,11 @@ class TestSessionStart(SandboxCase):
         code, out, _ = self.sb.session(cwd=self.sb.wt)
         self.assertIn("not safe to commit on", out)
 
-    def test_missing_tooling_conf_prints_the_one_line(self):
+    def test_missing_tooling_conf_is_silent(self):
         self.sb.unbootstrap()
         code, out, err = self.sb.session(cwd=self.sb.wt)
         self.assertEqual(code, 0, err)
-        self.assertEqual(out.strip(), NOT_BOOTSTRAPPED)
+        self.assertEqual(out, "")
 
     def test_gh_missing_is_reported(self):
         code, out, err = self.sb.session(gh=False)
@@ -753,8 +753,11 @@ class TestSessionStart(SandboxCase):
         self.assertIn("WARNING: python3 is not installed", out)
         self.sb.unbootstrap()
         code, out, _ = run_hook("session_start.sh", {"cwd": str(self.sb.wt)}, env, cwd=self.sb.wt)
-        self.assertEqual(code, 0)
-        self.assertEqual(out.strip(), NOT_BOOTSTRAPPED)
+        self.assertEqual((code, out), (0, ""))
+        empty_dir = self.sb.tmp / "fresh-folder"
+        empty_dir.mkdir()
+        code, out, _ = run_hook("session_start.sh", {"cwd": str(empty_dir)}, env, cwd=empty_dir)
+        self.assertEqual((code, out.strip()), (0, EMPTY_FOLDER_HINT))
 
     def test_wrapper_runs_the_python_hook(self):
         code, out, err = run_hook("session_start.sh", {"cwd": str(self.sb.main)}, self.sb.env(),
@@ -878,18 +881,25 @@ class TestInertWithoutToolingConf(SandboxCase):
             with self.subTest(event=event):
                 self.assert_inert(self.sb.stop(event=event))
 
-    def test_session_start_prints_one_line(self):
+    def test_session_start_is_silent_in_a_repository_without_shipyard(self):
+        # The plugin is usually installed for the whole user: it must not talk in other repos.
         code, out, err = self.sb.session(cwd=self.sb.wt)
-        self.assertEqual((code, err), (0, ""))
-        self.assertEqual(out, NOT_BOOTSTRAPPED + "\n")
+        self.assertEqual((code, err, out), (0, "", ""))
         self.assertEqual(self.sb.gh_calls(), [])
 
     def test_session_start_outside_a_repository(self):
-        code, out, _ = self.sb.session(cwd=self.sb.home)
-        self.assertEqual((code, out), (0, NOT_BOOTSTRAPPED + "\n"))
-        code, out, _ = run_hook("session_start.sh", {"cwd": str(self.sb.home)}, self.sb.env(),
-                                cwd=self.sb.home)
-        self.assertEqual((code, out), (0, NOT_BOOTSTRAPPED + "\n"))
+        busy = self.sb.tmp / "not-a-repo"
+        busy.mkdir()
+        (busy / "notes.txt").write_text("x")
+        code, out, _ = self.sb.session(cwd=busy)
+        self.assertEqual((code, out), (0, ""))
+        empty_dir = self.sb.tmp / "empty-folder"
+        empty_dir.mkdir()
+        code, out, _ = self.sb.session(cwd=empty_dir)
+        self.assertEqual((code, out), (0, EMPTY_FOLDER_HINT + "\n"))
+        code, out, _ = run_hook("session_start.sh", {"cwd": str(empty_dir)}, self.sb.env(),
+                                cwd=empty_dir)
+        self.assertEqual((code, out), (0, EMPTY_FOLDER_HINT + "\n"))
 
     def test_invalid_stdin_is_silent(self):
         for name in ("guard_bash.py", "post_edit.py", "require_pull_request.py"):

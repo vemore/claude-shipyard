@@ -11,7 +11,14 @@ if ! command -v python3 >/dev/null 2>&1; then
     fi
     dir=${dir%/*}
   done
-  echo "shipyard is enabled here, but this repository has no scripts/lib/tooling.conf — run /shipyard:bootstrap in an empty folder, or ignore this message."
+  # Not a shipyard repository: silent, except in an empty folder (where bootstrap belongs).
+  empty=1
+  for f in "$PWD"/* "$PWD"/.[!.]* "$PWD"/..?*; do
+    if [ -e "$f" ] || [ -L "$f" ]; then empty=0; break; fi
+  done
+  if [ "$empty" = 1 ]; then
+    echo "This folder is empty and shipyard is enabled: run /shipyard:bootstrap <what you want to build> to start a project with its tooling."
+  fi
   exit 0
 fi
 exec python3 "$(dirname "$0")/session_start.py"

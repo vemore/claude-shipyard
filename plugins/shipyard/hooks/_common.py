@@ -28,11 +28,22 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 CONF_RELPATH = os.path.join("scripts", "lib", "tooling.conf")
 
-# The one line SessionStart prints in a repository shipyard has not bootstrapped (contract §6);
-# every other hook stays silent there.
-NOT_BOOTSTRAPPED = ("shipyard is enabled here, but this repository has no "
-                    "scripts/lib/tooling.conf — run /shipyard:bootstrap in an empty folder, or "
-                    "ignore this message.")
+# Where shipyard has not bootstrapped the repository (no scripts/lib/tooling.conf), every hook
+# stays silent — the plugin is usually installed for the whole user, so it is enabled in every
+# repository. The one exception (contract §6): SessionStart in an EMPTY folder prints this hint,
+# because that is exactly where /shipyard:bootstrap is meant to run.
+EMPTY_FOLDER_HINT = ("This folder is empty and shipyard is enabled: run /shipyard:bootstrap "
+                     "<what you want to build> to start a project with its tooling.")
+
+
+def is_empty_dir(path):
+    # type: (str) -> bool
+    """True when `path` is an existing directory with no entry at all (hidden ones included)."""
+    try:
+        with os.scandir(path) as entries:
+            return next(iter(entries), None) is None
+    except OSError:
+        return False
 
 # Built-in defaults, used when no tooling.conf can be read. An empty regex disables its rule.
 DEFAULTS = {

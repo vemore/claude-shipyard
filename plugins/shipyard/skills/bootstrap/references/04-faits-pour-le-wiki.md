@@ -60,8 +60,9 @@ they leave alone, and why the project relies on them. Related : `[[Testing]]` ·
   `git config` `<GIT_CONFIG_NS>.*` et `branch.<b>.noPullRequest` ; GitHub par `gh`, en lecture
   seule, sous délai, muet hors ligne ou sans authentification.
 - **Inertes sans `tooling.conf`.** Dans un dépôt sans `scripts/lib/tooling.conf`, chaque hook
-  sort 0 sans rien dire, sauf `SessionStart`, qui imprime une ligne (« shipyard is enabled here,
-  but this repository has no scripts/lib/tooling.conf… »).
+  sort 0 sans rien dire — le plugin est souvent installé pour tout l'utilisateur, donc actif
+  dans tous ses dépôts. Seule exception : `SessionStart` dans un dossier vide suggère
+  `/shipyard:bootstrap`.
 - **Ce que dit `SessionStart`**, seulement quand c'est pertinent, en quinze lignes au plus :
   dépendances manquantes (Python < 3.9, `git`, `tooling.conf`, `gh` absent ou non authentifié :
   « degraded ») ; `Branch: <b> (N ahead, M behind origin/<D>)`, avec la recette du worktree sur

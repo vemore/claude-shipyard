@@ -128,9 +128,11 @@ Scripts nouveaux par rapport à l'annexe 00 :
 - Commandes dans `hooks/hooks.json` : `python3 "${CLAUDE_PLUGIN_ROOT}/hooks/<fichier>.py"`
   (sauf `session_start.sh`). `CLAUDE_PROJECT_DIR` reste disponible.
 - **Projet non bootstrappé** (pas de `scripts/lib/tooling.conf` dans le dépôt jugé) : tous les
-  hooks sont inertes (sortie 0, rien imprimé), sauf `SessionStart`, qui imprime une ligne :
-  « shipyard is enabled here, but this repository has no scripts/lib/tooling.conf — run
-  /shipyard:bootstrap in an empty folder, or ignore this message. »
+  hooks sont inertes (sortie 0, rien imprimé). Seule exception : `SessionStart` dans un dossier
+  **vide** imprime « This folder is empty and shipyard is enabled: run /shipyard:bootstrap
+  <what you want to build> to start a project with its tooling. » Pourquoi : pour lancer
+  `/shipyard:bootstrap` dans un dossier vide, le plugin doit être installé pour l'utilisateur,
+  donc actif dans tous ses dépôts ; il ne doit y dire un mot que là où il sert.
 - `SessionStart` ajoute :
   - **version vendorisée** : si `scripts/lib/VENDORED.json` est plus ancien que
     `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, ou si `bin/vendor.py --check` voit un

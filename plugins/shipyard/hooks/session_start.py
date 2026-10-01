@@ -330,12 +330,13 @@ def main() -> int:
     if not shutil.which("git"):
         if conf_upward(cwd):
             print("WARNING: git is not installed: the shipyard hooks cannot judge anything.")
-        else:
-            print(common.NOT_BOOTSTRAPPED)
+        elif common.is_empty_dir(cwd):
+            print(common.EMPTY_FOLDER_HINT)
         return 0
     root = common.repo_root(cwd)
     if not common.is_bootstrapped(root):
-        print(common.NOT_BOOTSTRAPPED)
+        if common.is_empty_dir(cwd):
+            print(common.EMPTY_FOLDER_HINT)
         return 0
     lines = []  # type: List[str]
     if sys.version_info < (3, 9):

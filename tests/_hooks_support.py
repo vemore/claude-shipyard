@@ -34,9 +34,8 @@ PRECOMMIT_PY = PLUGIN / "templates" / "scripts" / "precommit.py"
 GITHUB_URL = "https://github.com/acme/demo.git"
 NS = "demo"
 PLUGIN_VERSION = "1.0.0"
-NOT_BOOTSTRAPPED = ("shipyard is enabled here, but this repository has no "
-                    "scripts/lib/tooling.conf — run /shipyard:bootstrap in an empty folder, or "
-                    "ignore this message.")
+EMPTY_FOLDER_HINT = ("This folder is empty and shipyard is enabled: run /shipyard:bootstrap "
+                     "<what you want to build> to start a project with its tooling.")
 
 # Fake secrets are assembled at run time so that the test files themselves never match
 # SECRET_CONTENT_RE and need no `secret-scan: fixture` exemption.
